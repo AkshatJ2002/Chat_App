@@ -1,36 +1,45 @@
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
+const socketIo = require('socket.io');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = socketIo(server);
 
-// Serve static files from the 'public' folder
+const activeRooms = {}; // To keep track of active chat rooms
+
 app.use(express.static('public'));
 
-// Handle socket connection
-io.on('connection', (socket) => {
-    console.log('A user connected');
-
-    // Join specific chat room
-    socket.on('joinRoom', (room) => {
-        socket.join(room);
-        console.log(`User joined room: ${room}`);
-    });
-
-    // Handle chat message
-    socket.on('chat message', ({ room, msg }) => {
-        io.to(room).emit('chat message', msg);
-    });
-
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start the server
+app.get('/chat.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'chat.html'));
+});
+
+io.on('connection', (socket) => {
+  socket.on('createRoom', (roomName) => {
+    if (!activeRooms[roomName]) {
+      activeRooms[roomName] = [];
+    }
+    io.emit('roomListUpdate', Object.keys(activeRooms)); // Update all clients with the new room list
+  });
+
+  socket.on('joinRoom', ({ room, username }) => {
+    socket.join(room);
+    activeRooms[room].push(username);
+    io.to(room).emit('message', `${username} has joined the room.`);
+    io.emit('roomListUpdate', Object.keys(activeRooms)); // Update all clients with the room list
+  });
+
+  socket.on('disconnect', () => {
+    // Handle user disconnect if needed
+  });
+});
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

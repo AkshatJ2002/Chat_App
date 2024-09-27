@@ -1,72 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Chat App - Room Selection</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-            margin: 0;
-        }
-        .container {
-            text-align: center;
-            background: #fff;
-            padding: 30px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-        h1 {
-            color: #333;
-        }
-        button, input {
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            outline: none;
-            cursor: pointer;
-        }
-        button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        input {
-            width: 70%;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Welcome to the Chat App</h1>
-
-    <!-- Create Room -->
-    <button onclick="createRoom()">Create a Chat Room</button>
-
-    <!-- Join Room -->
-    <h2>Join a Chat Room</h2>
-    <form onsubmit="joinRoom(event)">
-        <input id="room-code" type="text" placeholder="Enter Room Code" required />
-        <button type="submit">Join Room</button>
-    </form>
-
-    <script>
-        function createRoom() {
-            const roomCode = Math.random().toString(36).substring(2, 8); // Generate a 6-character room code
-            window.location.href = `/chat.html?room=${roomCode}`; // Redirect to chat room
-        }
-
-        function joinRoom(event) {
-            event.preventDefault();
-            const roomCode = document.getElementById('room-code').value;
-            window.location.href = `/chat.html?room=${roomCode}`; // Redirect to the chat room
-        }
-    </script>
+    <div id="roomListSidebar">
+        <h3>Active Chat Rooms</h3>
+        <ul id="roomList"></ul>
+    </div>
+    <div id="mainContent">
+        <h1>Welcome to the Chat Application</h1>
+        <form id="createRoomForm">
+            <input type="text" id="roomName" placeholder="Enter Room Name" required>
+            <button type="submit">Create Room</button>
+        </form>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="index.js"></script>
 </body>
 </html>
