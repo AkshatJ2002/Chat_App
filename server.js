@@ -21,21 +21,22 @@ app.get('/chat.html', (req, res) => {
 
 io.on('connection', (socket) => {
   socket.on('createRoom', ({ roomName, username }) => {
-    if (!activeRooms[roomName]) {
-      activeRooms[roomName] = { users: [], messages: [] };
+    const roomCode = generateRoomCode(); // Generate a unique room code
+    if (!activeRooms[roomCode]) {
+      activeRooms[roomCode] = { name: roomName, users: [], messages: [] };
     }
-    socket.join(roomName);
-    activeRooms[roomName].users.push(username);
-    io.emit('roomListUpdate', Object.keys(activeRooms)); // Update all clients with the new room list
-    socket.emit('message', `You have created the room: ${roomName}`);
-    io.to(roomName).emit('message', `${username} has joined the room.`);
+    socket.join(roomCode);
+    activeRooms[roomCode].users.push(username);
+    io.emit('roomListUpdate', activeRooms); // Update all clients with the new room list
+    socket.emit('message', `You have created the room: ${roomName} with code: ${roomCode}`);
+    io.to(roomCode).emit('message', `${username} has joined the room.`);
   });
 
-  socket.on('joinRoom', ({ room, username }) => {
-    if (activeRooms[room]) {
-      socket.join(room);
-      activeRooms[room].users.push(username);
-      io.to(room).emit('message', `${username} has joined the room.`);
+  socket.on('joinRoom', ({ roomCode, username }) => {
+    if (activeRooms[roomCode]) {
+      socket.join(roomCode);
+      activeRooms[roomCode].users.push(username);
+      io.to(roomCode).emit('message', `${username} has joined the room.`);
     } else {
       socket.emit('message', 'Room does not exist.');
     }
@@ -45,6 +46,11 @@ io.on('connection', (socket) => {
     // Handle user disconnect if needed
   });
 });
+
+// Function to generate a unique room code
+function generateRoomCode() {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

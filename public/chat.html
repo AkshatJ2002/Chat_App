@@ -15,11 +15,11 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const roomName = urlParams.get('room');
+        const roomCode = urlParams.get('room');
         const username = urlParams.get('username');
         const socket = io();
 
-        socket.emit('joinRoom', { room: roomName, username: username });
+        socket.emit('joinRoom', { room: roomCode, username: username });
 
         socket.on('message', (msg) => {
             const messagesDiv = document.getElementById('messages');
@@ -29,7 +29,7 @@
         document.getElementById('sendMessage').onclick = () => {
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value;
-            socket.emit('message', { room: roomName, message: message, username: username });
+            socket.emit('message', { room: roomCode, message: message, username: username });
             messageInput.value = ''; // Clear input after sending
         };
     </script>
