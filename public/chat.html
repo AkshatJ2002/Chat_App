@@ -16,7 +16,7 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const roomName = urlParams.get('room');
-        const username = prompt("Enter your username:");
+        const username = urlParams.get('username');
         const socket = io();
 
         socket.emit('joinRoom', { room: roomName, username: username });

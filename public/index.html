@@ -15,7 +15,13 @@
         <h1>Welcome to the Chat Application</h1>
         <form id="createRoomForm">
             <input type="text" id="roomName" placeholder="Enter Room Name" required>
+            <input type="text" id="username" placeholder="Enter Your Username" required>
             <button type="submit">Create Room</button>
+        </form>
+        <form id="joinRoomForm">
+            <input type="text" id="joinRoomName" placeholder="Enter Room Code" required>
+            <input type="text" id="joinUsername" placeholder="Enter Your Username" required>
+            <button type="submit">Join Room</button>
         </form>
     </div>
     <script src="/socket.io/socket.io.js"></script>
