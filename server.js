@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "*", // Allow all origins for testing; in production, specify your client URL.
+        origin: "*",
         methods: ["GET", "POST"],
     }
 });
@@ -16,12 +16,9 @@ const io = socketIo(server, {
 app.use(cors());
 app.use(bodyParser.json());
 
-// Serve static files from the 'public' directory
-app.use(express.static('public')); // <-- Add this line
+let users = {}; // Stores the socket id and username
 
-// Store users and their sockets
-const users = {};
-
+// User connection
 io.on('connection', (socket) => {
     console.log('A user connected');
 
@@ -30,25 +27,41 @@ io.on('connection', (socket) => {
         users[socket.id] = username;
         console.log(`${username} has joined`);
 
-        // Notify all users
-        io.emit('user joined', username);
+        // Notify all users about the new user
+        io.emit('user joined', { username, users: Object.values(users) });
     });
 
-    // Handle chat messages
+    // Handle typing event
+    socket.on('typing', (isTyping) => {
+        const username = users[socket.id];
+        if (username) {
+            socket.broadcast.emit('typing', { username, isTyping });
+        }
+    });
+
+    // Handle chat message
     socket.on('chat message', (message) => {
+        const timestamp = new Date().toLocaleTimeString();
         io.emit('chat message', {
             user: users[socket.id],
             message,
+            timestamp
         });
     });
 
+    // User disconnect
     socket.on('disconnect', () => {
-        console.log(`${users[socket.id]} has disconnected`);
-        // Notify all users about the user leaving
-        io.emit('user left', users[socket.id]);
-        delete users[socket.id];
+        const username = users[socket.id];
+        if (username) {
+            console.log(`${username} has disconnected`);
+            io.emit('user left', { username, users: Object.values(users) });
+            delete users[socket.id];
+        }
     });
 });
+
+// Serve static files
+app.use(express.static('public'));
 
 // Start the server
 const PORT = process.env.PORT || 3000;

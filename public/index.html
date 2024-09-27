@@ -4,20 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Application</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+        let typingTimeout;
 
+        // Join chat
         function joinChat() {
             const username = document.getElementById('username').value;
             if (username) {
                 socket.emit('join', username);
                 document.getElementById('join-screen').style.display = 'none';
-                document.getElementById('chat-screen').style.display = 'block';
+                document.getElementById('chat-screen').style.display = 'flex';
             }
         }
 
+        // Send message
         function sendMessage(e) {
             e.preventDefault();
             const messageInput = document.getElementById('message');
@@ -25,48 +28,94 @@
             if (message) {
                 socket.emit('chat message', message);
                 messageInput.value = '';
+                setTyping(false);
             }
         }
 
+        // Typing indicator
+        function setTyping(isTyping) {
+            socket.emit('typing', isTyping);
+            clearTimeout(typingTimeout);
+            if (isTyping) {
+                typingTimeout = setTimeout(() => setTyping(false), 2000); // Stop typing after 2 seconds of no activity
+            }
+        }
+
+        // Listen for new messages
         socket.on('chat message', function(data) {
             const messages = document.getElementById('messages');
             const item = document.createElement('li');
-            item.textContent = `${data.user}: ${data.message}`;
+            item.innerHTML = `<strong>${data.user}</strong> (${data.timestamp}): ${data.message}`;
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
 
-        socket.on('user joined', function(user) {
+        // Listen for user join
+        socket.on('user joined', function(data) {
             const messages = document.getElementById('messages');
             const item = document.createElement('li');
-            item.textContent = `${user} has joined the chat.`;
+            item.textContent = `${data.username} has joined the chat.`;
             item.classList.add('system');
             messages.appendChild(item);
+            updateUsers(data.users);
         });
 
-        socket.on('user left', function(user) {
+        // Listen for user leave
+        socket.on('user left', function(data) {
             const messages = document.getElementById('messages');
             const item = document.createElement('li');
-            item.textContent = `${user} has left the chat.`;
+            item.textContent = `${data.username} has left the chat.`;
             item.classList.add('system');
             messages.appendChild(item);
+            updateUsers(data.users);
         });
+
+        // Typing indicator
+        socket.on('typing', function(data) {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (data.isTyping) {
+                typingIndicator.textContent = `${data.username} is typing...`;
+            } else {
+                typingIndicator.textContent = '';
+            }
+        });
+
+        // Update the user list
+        function updateUsers(users) {
+            const usersList = document.getElementById('users');
+            usersList.innerHTML = '';
+            users.forEach(user => {
+                const userItem = document.createElement('li');
+                userItem.textContent = user;
+                usersList.appendChild(userItem);
+            });
+        }
     </script>
 </head>
 <body>
+    <!-- Join Screen -->
     <div id="join-screen">
         <h2>Join Chat</h2>
         <input id="username" type="text" placeholder="Enter your name" />
         <button onclick="joinChat()">Join</button>
     </div>
 
+    <!-- Chat Screen -->
     <div id="chat-screen" style="display:none;">
-        <h3>Chat Room</h3>
-        <ul id="messages"></ul>
-        <form onsubmit="sendMessage(event)">
-            <input id="message" type="text" placeholder="Type a message..." />
-            <button type="submit">Send</button>
-        </form>
+        <div id="sidebar">
+            <h3>Active Users</h3>
+            <ul id="users"></ul>
+        </div>
+
+        <div id="chat-area">
+            <h3>Chat Room</h3>
+            <ul id="messages"></ul>
+            <p id="typing-indicator"></p>
+            <form onsubmit="sendMessage(event)">
+                <input id="message" type="text" placeholder="Type a message..." oninput="setTyping(true)" />
+                <button type="submit">Send</button>
+            </form>
+        </div>
     </div>
 </body>
 </html>
