@@ -115,7 +115,7 @@ h3 {
     margin: 10px 0;
     word-wrap: break-word; /* Ensure long words wrap inside the box */
     position: relative;
-    background-color: #34495e; /* Default message color */
+    background-color: #6d859c; /* Default message color */
     color: #ecf0f1;
     overflow-wrap: break-word; /* Handle long words, URLs, etc. */
 }
@@ -123,7 +123,7 @@ h3 {
 /* Your message will appear on the right side */
 .message.me {
     align-self: flex-end;
-    background-color: #1abc9c;
+    background-color: #58d4bb;
     color: white;
     border-top-right-radius: 0;
     margin-left: auto; /* Push message to the right */
@@ -132,7 +132,7 @@ h3 {
 /* Other users' messages will appear on the left side */
 .message.other {
     align-self: flex-start;
-    background-color: #34495e;
+    background-color: #5b738b;
     color: white;
     border-top-left-radius: 0;
     margin-right: auto; /* Push message to the left */
@@ -147,7 +147,7 @@ h3 {
 }
 
 .message a {
-    color: #1abc9c;
+    color: #a1d4ca;
     text-decoration: underline;
     display: block;
     margin-top: 5px;
