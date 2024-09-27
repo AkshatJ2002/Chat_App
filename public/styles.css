@@ -105,17 +105,19 @@ h3 {
 #messages {
     scrollbar-width: none; /* For Firefox */
 }
-
 /* Styling for messages */
 .message {
     display: flex;
     flex-direction: column;
-    max-width: 60%;
+    max-width: 60%; /* Limit the width to 60% of the chat area */
     padding: 10px;
     border-radius: 10px;
     margin: 10px 0;
-    word-wrap: break-word;
+    word-wrap: break-word; /* Ensure long words wrap inside the box */
     position: relative;
+    background-color: #34495e; /* Default message color */
+    color: #ecf0f1;
+    overflow-wrap: break-word; /* Handle long words, URLs, etc. */
 }
 
 /* Your message will appear on the right side */
@@ -124,7 +126,7 @@ h3 {
     background-color: #1abc9c;
     color: white;
     border-top-right-radius: 0;
-    margin-left: auto;
+    margin-left: auto; /* Push message to the right */
 }
 
 /* Other users' messages will appear on the left side */
@@ -133,8 +135,28 @@ h3 {
     background-color: #34495e;
     color: white;
     border-top-left-radius: 0;
-    margin-right: auto;
+    margin-right: auto; /* Push message to the left */
 }
+
+/* Ensure that images, videos, etc., in messages are responsive */
+.message img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 5px;
+}
+
+.message a {
+    color: #1abc9c;
+    text-decoration: underline;
+    display: block;
+    margin-top: 5px;
+}
+
+.message a:hover {
+    text-decoration: none;
+}
+
 
 /* Timestamp styling */
 .timestamp {
