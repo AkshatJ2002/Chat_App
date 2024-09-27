@@ -12,7 +12,7 @@
         const socket = io();
         let username = '';
         let typingTimeout;
-
+    
         function joinChat() {
             username = document.getElementById('username').value;
             if (username) {
@@ -21,7 +21,7 @@
                 document.getElementById('chat-screen').style.display = 'flex';
             }
         }
-
+    
         function sendMessage(e) {
             e.preventDefault();
             const messageInput = document.getElementById('message');
@@ -32,7 +32,7 @@
                 setTyping(false);
             }
         }
-
+    
         function setTyping(isTyping) {
             socket.emit('typing', isTyping);
             clearTimeout(typingTimeout);
@@ -40,18 +40,19 @@
                 typingTimeout = setTimeout(() => setTyping(false), 2000);
             }
         }
-
+    
         socket.on('chat message', function(data) {
             const messages = document.getElementById('messages');
             const item = document.createElement('li');
             item.classList.add('message');
-            // Check if the message is from the current user
             item.classList.add(data.user === username ? 'me' : 'other');
             item.innerHTML = `<strong>${data.user}</strong>: ${data.message}<span class="timestamp">${data.timestamp}</span>`;
             messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+    
+            // Auto-scroll to the bottom
+            messages.scrollTop = messages.scrollHeight;
         });
-
+    
         socket.on('user joined', function(data) {
             const messages = document.getElementById('messages');
             const item = document.createElement('li');
@@ -59,8 +60,11 @@
             item.classList.add('system');
             messages.appendChild(item);
             updateUsers(data.users);
+    
+            // Auto-scroll to the bottom
+            messages.scrollTop = messages.scrollHeight;
         });
-
+    
         socket.on('user left', function(data) {
             const messages = document.getElementById('messages');
             const item = document.createElement('li');
@@ -68,8 +72,11 @@
             item.classList.add('system');
             messages.appendChild(item);
             updateUsers(data.users);
+    
+            // Auto-scroll to the bottom
+            messages.scrollTop = messages.scrollHeight;
         });
-
+    
         socket.on('typing', function(data) {
             const typingIndicator = document.getElementById('typing-indicator');
             if (data.isTyping) {
@@ -78,7 +85,7 @@
                 typingIndicator.textContent = '';
             }
         });
-
+    
         function updateUsers(users) {
             const usersList = document.getElementById('users');
             usersList.innerHTML = '';
@@ -89,6 +96,7 @@
             });
         }
     </script>
+    
 </head>
 <body>
     <!-- Join Screen -->
