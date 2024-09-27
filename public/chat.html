@@ -2,6 +2,30 @@
 <html>
 <head>
     <title>Chat Room</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const room = urlParams.get('room'); // Get room code from the URL
+
+        const socket = io();
+
+        // Join the specific room
+        socket.emit('joinRoom', room);
+
+        function sendMessage(event) {
+            event.preventDefault();
+            const input = document.getElementById('message-input');
+            const msg = input.value;
+            socket.emit('chat message', { room, msg }); // Send message to the server, with the room information
+            input.value = '';
+        }
+
+        socket.on('chat message', (msg) => {
+            const item = document.createElement('li');
+            item.textContent = msg;
+            document.getElementById('messages').appendChild(item);
+        });
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -59,30 +83,6 @@
             background-color: #0056b3;
         }
     </style>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const room = urlParams.get('room'); // Get room code from the URL
-
-        const socket = io();
-
-        // Join the specific room
-        socket.emit('joinRoom', room);
-
-        function sendMessage(event) {
-            event.preventDefault();
-            const input = document.getElementById('message-input');
-            const msg = input.value;
-            socket.emit('chat message', { room, msg }); // Send message to the server, with the room information
-            input.value = '';
-        }
-
-        socket.on('chat message', (msg) => {
-            const item = document.createElement('li');
-            item.textContent = msg;
-            document.getElementById('messages').appendChild(item);
-        });
-    </script>
 </head>
 <body>
     <h1>Room: <span id="room-name"></span></h1>
