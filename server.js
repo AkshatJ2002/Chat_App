@@ -48,7 +48,16 @@ io.on('connection', (socket) => {
             timestamp
         });
     });
-
+    socket.on('file message', (fileData) => {
+        const timestamp = new Date().toLocaleTimeString();
+        io.emit('file message', {
+            user: users[socket.id],
+            filename: fileData.filename,
+            content: fileData.content,
+            type: fileData.type,
+            timestamp
+        });
+    });
     // User disconnect
     socket.on('disconnect', () => {
         const username = users[socket.id];
@@ -67,14 +76,4 @@ app.use(express.static('public'));
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
-});
-socket.on('file message', (fileData) => {
-    const timestamp = new Date().toLocaleTimeString();
-    io.emit('file message', {
-        user: users[socket.id],
-        filename: fileData.filename,
-        content: fileData.content,
-        type: fileData.type,
-        timestamp
-    });
 });
