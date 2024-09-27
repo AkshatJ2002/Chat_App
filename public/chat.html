@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            margin: 0;
+            text-align: center;
+        }
+        #messages {
+            flex-grow: 1;
+            padding: 20px;
+            list-style: none;
+            margin: 0;
+            overflow-y: scroll;
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+        }
+        #messages li {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        form {
+            display: flex;
+            border-top: 1px solid #ccc;
+            padding: 10px;
+            background-color: #fff;
+        }
+        input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const room = urlParams.get('room'); // Get room code from the URL
+
+        const socket = io();
+
+        // Join the specific room
+        socket.emit('joinRoom', room);
+
+        function sendMessage(event) {
+            event.preventDefault();
+            const input = document.getElementById('message-input');
+            const msg = input.value;
+            socket.emit('chat message', { room, msg }); // Send message to the server, with the room information
+            input.value = '';
+        }
+
+        socket.on('chat message', (msg) => {
+            const item = document.createElement('li');
+            item.textContent = msg;
+            document.getElementById('messages').appendChild(item);
+        });
+    </script>
+</head>
+<body>
+    <h1>Room: <span id="room-name"></span></h1>
+    <ul id="messages"></ul>
+    <form onsubmit="sendMessage(event)">
+        <input id="message-input" autocomplete="off" /><button>Send</button>
+    </form>
+
+    <script>
+        // Display the room name
+        document.getElementById('room-name').textContent = room;
+    </script>
+</body>
+</html>
