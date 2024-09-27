@@ -1,58 +1,57 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
-const path = require('path');
+const cors = require('cors');
+const bodyParser = require('body-parser');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
-
-const activeRooms = {}; // To keep track of active chat rooms
-
-app.use(express.static('public'));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+const io = socketIo(server, {
+    cors: {
+        origin: "*", // Allow all origins for testing; in production, specify your client URL.
+        methods: ["GET", "POST"],
+    }
 });
 
-app.get('/chat.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'chat.html'));
-});
+app.use(cors());
+app.use(bodyParser.json());
+
+// Serve static files from the 'public' directory
+app.use(express.static('public')); // <-- Add this line
+
+// Store users and their sockets
+const users = {};
 
 io.on('connection', (socket) => {
-  socket.on('createRoom', ({ roomName, username }) => {
-    const roomCode = generateRoomCode(); // Generate a unique room code
-    if (!activeRooms[roomCode]) {
-      activeRooms[roomCode] = { name: roomName, users: [], messages: [] };
-    }
-    socket.join(roomCode);
-    activeRooms[roomCode].users.push(username);
-    io.emit('roomListUpdate', activeRooms); // Update all clients with the new room list
-    socket.emit('message', `You have created the room: ${roomName} with code: ${roomCode}`);
-    io.to(roomCode).emit('message', `${username} has joined the room.`);
-  });
+    console.log('A user connected');
 
-  socket.on('joinRoom', ({ roomCode, username }) => {
-    if (activeRooms[roomCode]) {
-      socket.join(roomCode);
-      activeRooms[roomCode].users.push(username);
-      io.to(roomCode).emit('message', `${username} has joined the room.`);
-    } else {
-      socket.emit('message', 'Room does not exist.');
-    }
-  });
+    // Handle user joining
+    socket.on('join', (username) => {
+        users[socket.id] = username;
+        console.log(`${username} has joined`);
 
-  socket.on('disconnect', () => {
-    // Handle user disconnect if needed
-  });
+        // Notify all users
+        io.emit('user joined', username);
+    });
+
+    // Handle chat messages
+    socket.on('chat message', (message) => {
+        io.emit('chat message', {
+            user: users[socket.id],
+            message,
+        });
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`${users[socket.id]} has disconnected`);
+        // Notify all users about the user leaving
+        io.emit('user left', users[socket.id]);
+        delete users[socket.id];
+    });
 });
 
-// Function to generate a unique room code
-function generateRoomCode() {
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
-}
-
+// Start the server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });

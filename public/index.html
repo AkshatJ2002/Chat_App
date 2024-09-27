@@ -4,27 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Application</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        function joinChat() {
+            const username = document.getElementById('username').value;
+            if (username) {
+                socket.emit('join', username);
+                document.getElementById('join-screen').style.display = 'none';
+                document.getElementById('chat-screen').style.display = 'block';
+            }
+        }
+
+        function sendMessage(e) {
+            e.preventDefault();
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value;
+            if (message) {
+                socket.emit('chat message', message);
+                messageInput.value = '';
+            }
+        }
+
+        socket.on('chat message', function(data) {
+            const messages = document.getElementById('messages');
+            const item = document.createElement('li');
+            item.textContent = `${data.user}: ${data.message}`;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        socket.on('user joined', function(user) {
+            const messages = document.getElementById('messages');
+            const item = document.createElement('li');
+            item.textContent = `${user} has joined the chat.`;
+            item.classList.add('system');
+            messages.appendChild(item);
+        });
+
+        socket.on('user left', function(user) {
+            const messages = document.getElementById('messages');
+            const item = document.createElement('li');
+            item.textContent = `${user} has left the chat.`;
+            item.classList.add('system');
+            messages.appendChild(item);
+        });
+    </script>
 </head>
 <body>
-    <div id="roomListSidebar">
-        <h3>Active Chat Rooms</h3>
-        <ul id="roomList"></ul>
+    <div id="join-screen">
+        <h2>Join Chat</h2>
+        <input id="username" type="text" placeholder="Enter your name" />
+        <button onclick="joinChat()">Join</button>
     </div>
-    <div id="mainContent">
-        <h1>Welcome to the Chat Application</h1>
-        <form id="createRoomForm">
-            <input type="text" id="roomName" placeholder="Enter Room Name" required>
-            <input type="text" id="username" placeholder="Enter Your Username" required>
-            <button type="submit">Create Room</button>
-        </form>
-        <form id="joinRoomForm">
-            <input type="text" id="joinRoomCode" placeholder="Enter Room Code" required>
-            <input type="text" id="joinUsername" placeholder="Enter Your Username" required>
-            <button type="submit">Join Room</button>
+
+    <div id="chat-screen" style="display:none;">
+        <h3>Chat Room</h3>
+        <ul id="messages"></ul>
+        <form onsubmit="sendMessage(event)">
+            <input id="message" type="text" placeholder="Type a message..." />
+            <button type="submit">Send</button>
         </form>
     </div>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="index.js"></script>
 </body>
 </html>
