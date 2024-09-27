@@ -193,3 +193,36 @@ button:hover {
     font-size: 0.9em;
     font-style: italic;
 }
+textarea {
+    flex-grow: 1;
+    padding: 15px;
+    border-radius: 30px;
+    border: none;
+    margin-right: 10px;
+    background-color: #34495e;
+    color: #ecf0f1;
+    font-size: 16px;
+    resize: none; /* Disable manual resizing */
+    overflow: hidden;
+}
+
+textarea::placeholder {
+    color: #95a5a6;
+}
+.message img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 5px;
+}
+
+.message a {
+    color: #1abc9c;
+    text-decoration: underline;
+    display: block;
+    margin-top: 5px;
+}
+
+.message a:hover {
+    text-decoration: none;
+}
