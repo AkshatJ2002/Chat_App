@@ -95,40 +95,6 @@
                 usersList.appendChild(userItem);
             });
         }
-        function sendFile(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const fileData = {
-                    filename: file.name,
-                    content: e.target.result,
-                    type: file.type,
-                };
-                socket.emit('file message', fileData);
-            };
-            reader.readAsDataURL(file); // Convert file to base64
-        }
-    }
-
-    // Listen for file messages from other users
-    socket.on('file message', function(data) {
-        const messages = document.getElementById('messages');
-        const item = document.createElement('li');
-        item.classList.add('message', data.user === username ? 'me' : 'other');
-
-        if (data.type.startsWith('image/')) {
-            item.innerHTML = `<strong>${data.user}</strong>: <br><img src="${data.content}" alt="${data.filename}" style="max-width: 100%; height: auto;"><span class="timestamp">${data.timestamp}</span>`;
-        } else {
-            item.innerHTML = `<strong>${data.user}</strong>: <br><a href="${data.content}" download="${data.filename}">Download ${data.filename}</a><span class="timestamp">${data.timestamp}</span>`;
-        }
-
-        messages.appendChild(item);
-
-        // Auto-scroll to the bottom
-        messages.scrollTop = messages.scrollHeight;
-    });
-    
     </script>
     
 </head>
@@ -152,8 +118,7 @@
             <ul id="messages"></ul>
             <p id="typing-indicator"></p>
             <form onsubmit="sendMessage(event)">
-                <textarea id="message" placeholder="Type a message..." oninput="resizeTextarea()" rows="1"></textarea>
-                <input type="file" id="fileInput" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="sendFile(event)" />
+                <input id="message" type="text" placeholder="Type a message..." oninput="setTyping(true)" />
                 <button type="submit">Send</button>
             </form>
         </div>
