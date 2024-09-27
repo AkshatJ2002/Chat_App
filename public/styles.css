@@ -94,23 +94,53 @@ h3 {
     max-height: 300px;
 }
 
-#messages li {
-    margin: 10px 0;
+/* Styling for messages */
+.message {
+    display: flex;
+    flex-direction: column;
+    max-width: 60%;
     padding: 10px;
+    border-radius: 10px;
+    margin: 10px 0;
+    word-wrap: break-word;
+    position: relative;
+}
+
+/* Your message will appear on the right side */
+.message.me {
+    align-self: flex-end;
+    background-color: #1abc9c;
+    color: white;
+    border-top-right-radius: 0;
+    margin-left: auto;
+}
+
+/* Other users' messages will appear on the left side */
+.message.other {
+    align-self: flex-start;
     background-color: #34495e;
-    border-radius: 8px;
-    transition: background-color 0.3s;
+    color: white;
+    border-top-left-radius: 0;
+    margin-right: auto;
 }
 
-#messages li:hover {
-    background-color: #3c6b78;
+/* Timestamp styling */
+.timestamp {
+    font-size: 0.75em;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: right;
+    margin-top: 5px;
 }
 
+/* System messages (e.g., user joined) */
 .system {
     font-style: italic;
     color: #95a5a6;
+    text-align: center;
+    margin: 10px 0;
 }
 
+/* Form styling for input and button */
 form {
     display: flex;
     margin-top: 20px;

@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Application</title>
+    <title>Modern Chat Application</title>
+    <!-- Add Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+        let username = '';
         let typingTimeout;
 
-        // Join chat
         function joinChat() {
-            const username = document.getElementById('username').value;
+            username = document.getElementById('username').value;
             if (username) {
                 socket.emit('join', username);
                 document.getElementById('join-screen').style.display = 'none';
@@ -21,7 +22,6 @@
             }
         }
 
-        // Send message
         function sendMessage(e) {
             e.preventDefault();
             const messageInput = document.getElementById('message');
@@ -33,25 +33,25 @@
             }
         }
 
-        // Typing indicator
         function setTyping(isTyping) {
             socket.emit('typing', isTyping);
             clearTimeout(typingTimeout);
             if (isTyping) {
-                typingTimeout = setTimeout(() => setTyping(false), 2000); // Stop typing after 2 seconds of no activity
+                typingTimeout = setTimeout(() => setTyping(false), 2000);
             }
         }
 
-        // Listen for new messages
         socket.on('chat message', function(data) {
             const messages = document.getElementById('messages');
             const item = document.createElement('li');
-            item.innerHTML = `<strong>${data.user}</strong> (${data.timestamp}): ${data.message}`;
+            item.classList.add('message');
+            // Check if the message is from the current user
+            item.classList.add(data.user === username ? 'me' : 'other');
+            item.innerHTML = `<strong>${data.user}</strong>: ${data.message}<span class="timestamp">${data.timestamp}</span>`;
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
 
-        // Listen for user join
         socket.on('user joined', function(data) {
             const messages = document.getElementById('messages');
             const item = document.createElement('li');
@@ -61,7 +61,6 @@
             updateUsers(data.users);
         });
 
-        // Listen for user leave
         socket.on('user left', function(data) {
             const messages = document.getElementById('messages');
             const item = document.createElement('li');
@@ -71,7 +70,6 @@
             updateUsers(data.users);
         });
 
-        // Typing indicator
         socket.on('typing', function(data) {
             const typingIndicator = document.getElementById('typing-indicator');
             if (data.isTyping) {
@@ -81,7 +79,6 @@
             }
         });
 
-        // Update the user list
         function updateUsers(users) {
             const usersList = document.getElementById('users');
             usersList.innerHTML = '';
