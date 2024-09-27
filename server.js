@@ -48,16 +48,7 @@ io.on('connection', (socket) => {
             timestamp
         });
     });
-    socket.on('file message', (fileData) => {
-        const timestamp = new Date().toLocaleTimeString();
-        io.emit('file message', {
-            user: users[socket.id],
-            filename: fileData.filename,
-            content: fileData.content,
-            type: fileData.type,
-            timestamp
-        });
-    });
+
     // User disconnect
     socket.on('disconnect', () => {
         const username = users[socket.id];

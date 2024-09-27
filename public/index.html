@@ -128,24 +128,7 @@
         // Auto-scroll to the bottom
         messages.scrollTop = messages.scrollHeight;
     });
-    function resizeTextarea() {
-        const textarea = document.getElementById('message');
-        textarea.style.height = 'auto'; // Reset height
-        textarea.style.height = `${textarea.scrollHeight}px`; // Set height based on scrollHeight
-    }
-
-    // Example of sending a message
-    function sendMessage(e) {
-        e.preventDefault();
-        const messageInput = document.getElementById('message');
-        const message = messageInput.value;
-        if (message) {
-            socket.emit('chat message', message);
-            messageInput.value = '';
-            resizeTextarea(); // Reset textarea height
-            setTyping(false);
-        }
-    }
+    
     </script>
     
 </head>
